@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend App</title>
+</head>
+<body>
+  <h1>Frontend App</h1>
+  <button id="fetch-data">Fetch Data</button>
+  <div id="output"></div>
+
+  <script>
+    const backendUrl = 'http://127.0.0.1:5000/api/data'; // URL ของ Backend
+
+    document.getElementById('fetch-data').addEventListener('click', () => {
+      fetch(backendUrl)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('output').innerText = JSON.stringify(data);
+        })
+        .catch(error => console.error('Error:', error));
+    });
+  </script>
+</body>
+</html>
