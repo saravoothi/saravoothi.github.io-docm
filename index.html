@@ -7,17 +7,87 @@
 </head>
 <body>
   <h1>Frontend App</h1>
+  <h2>API Test</h2>
+
+  <!-- Fetch Data -->
   <button id="fetch-data">Fetch Data</button>
-  <div id="output"></div>
+  <ul id="output"></ul>
+
+  <!-- Add Data -->
+  <h3>Add New Data</h3>
+  <input type="text" id="new-message" placeholder="Enter new message">
+  <button id="add-data">Add Data</button>
+
+  <!-- Update Data -->
+  <h3>Update Data</h3>
+  <input type="number" id="update-id" placeholder="ID to update">
+  <input type="text" id="update-message" placeholder="Enter updated message">
+  <button id="update-data">Update Data</button>
+
+  <!-- Delete Data -->
+  <h3>Delete Data</h3>
+  <input type="number" id="delete-id" placeholder="ID to delete">
+  <button id="delete-data">Delete Data</button>
 
   <script>
     const backendUrl = 'https://bookish-fiesta-g4qpx56x497c9g7j-5000.app.github.dev/api/data'; // URL ของ Backend
 
+    // Fetch Data
     document.getElementById('fetch-data').addEventListener('click', () => {
       fetch(backendUrl)
         .then(response => response.json())
         .then(data => {
-          document.getElementById('output').innerText = JSON.stringify(data);
+          const output = document.getElementById('output');
+          output.innerHTML = ''; // ล้างข้อมูลเก่า
+          data.forEach(item => {
+            output.innerHTML += `<li>ID: ${item.id}, Message: ${item.message}</li>`;
+          });
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Add Data
+    document.getElementById('add-data').addEventListener('click', () => {
+      const message = document.getElementById('new-message').value;
+      fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      })
+        .then(response => response.json())
+        .then(data => {
+          alert(`Added: ${JSON.stringify(data)}`);
+          document.getElementById('new-message').value = '';
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Update Data
+    document.getElementById('update-data').addEventListener('click', () => {
+      const id = document.getElementById('update-id').value;
+      const message = document.getElementById('update-message').value;
+      fetch(`${backendUrl}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      })
+        .then(response => response.json())
+        .then(data => {
+          alert(`Updated: ${JSON.stringify(data)}`);
+          document.getElementById('update-id').value = '';
+          document.getElementById('update-message').value = '';
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Delete Data
+    document.getElementById('delete-data').addEventListener('click', () => {
+      const id = document.getElementById('delete-id').value;
+      fetch(`${backendUrl}/${id}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+          alert(`Deleted: ${data.message}`);
+          document.getElementById('delete-id').value = '';
         })
         .catch(error => console.error('Error:', error));
     });
