@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Frontend App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 5px 10px;
+    }
+    input {
+      margin: 5px 0;
+      padding: 5px;
+    }
+  </style>
 </head>
 <body>
   <h1>Frontend App</h1>
@@ -30,7 +44,16 @@
   <button id="delete-data">Delete Data</button>
 
   <script>
-    const backendUrl = 'https://musical-fishstick-q7qxv96vv7539wpr-5000.app.github.dev/api/data'; // URL ของ Backend
+    const backendUrl = 'http://localhost:5000/api/data';
+
+    // Helper for showing alerts
+    const showAlert = (message, type = 'success') => {
+      const alertBox = document.createElement('div');
+      alertBox.textContent = message;
+      alertBox.style.color = type === 'success' ? 'green' : 'red';
+      document.body.appendChild(alertBox);
+      setTimeout(() => alertBox.remove(), 3000);
+    };
 
     // Fetch Data
     document.getElementById('fetch-data').addEventListener('click', () => {
@@ -38,17 +61,21 @@
         .then(response => response.json())
         .then(data => {
           const output = document.getElementById('output');
-          output.innerHTML = ''; // ล้างข้อมูลเก่า
+          output.innerHTML = '';
           data.forEach(item => {
             output.innerHTML += `<li>ID: ${item.id}, Message: ${item.message}</li>`;
           });
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showAlert('Failed to fetch data', 'error'));
     });
 
     // Add Data
     document.getElementById('add-data').addEventListener('click', () => {
       const message = document.getElementById('new-message').value;
+      if (!message.trim()) {
+        showAlert('Please enter a valid message', 'error');
+        return;
+      }
       fetch(backendUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,16 +83,20 @@
       })
         .then(response => response.json())
         .then(data => {
-          alert(`Added: ${JSON.stringify(data)}`);
+          showAlert('Data added successfully!');
           document.getElementById('new-message').value = '';
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showAlert('Failed to add data', 'error'));
     });
 
     // Update Data
     document.getElementById('update-data').addEventListener('click', () => {
       const id = document.getElementById('update-id').value;
       const message = document.getElementById('update-message').value;
+      if (!id || !message.trim()) {
+        showAlert('Please enter valid ID and message', 'error');
+        return;
+      }
       fetch(`${backendUrl}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -73,23 +104,27 @@
       })
         .then(response => response.json())
         .then(data => {
-          alert(`Updated: ${JSON.stringify(data)}`);
+          showAlert('Data updated successfully!');
           document.getElementById('update-id').value = '';
           document.getElementById('update-message').value = '';
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showAlert('Failed to update data', 'error'));
     });
 
     // Delete Data
     document.getElementById('delete-data').addEventListener('click', () => {
       const id = document.getElementById('delete-id').value;
+      if (!id) {
+        showAlert('Please enter a valid ID', 'error');
+        return;
+      }
       fetch(`${backendUrl}/${id}`, { method: 'DELETE' })
         .then(response => response.json())
         .then(data => {
-          alert(`Deleted: ${data.message}`);
+          showAlert(data.message);
           document.getElementById('delete-id').value = '';
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showAlert('Failed to delete data', 'error'));
     });
   </script>
 </body>
